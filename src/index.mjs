@@ -2,6 +2,8 @@ import express from "express";
 
 const app = express();
 
+app.use(express.json());
+
 const PORT = 3000;
 
 const mockusers = [{id: 1, username: "hari"},
@@ -34,7 +36,15 @@ app.get("/api/users", (request,response) => {
            mockusers.filter((user) => user[filter].includes(value)) 
         );
      }
+    return response.send(mockusers);
 });
+
+app.post("/api/users", (request,response) => {
+    const { body } = request;
+    const  newUser = { id: mockusers[mockusers.length - 1].id + 1, ...body};
+    mockusers.push(newUser);
+    return response.status(201).send(newUser);
+})
 
 app.get("/api/products", (request,response) => {
     response.send([{
@@ -59,6 +69,3 @@ app.get("/api/users/:id", (request, response) => {
     
 })
 
-//query paramets
-
-//localhost:3000/products?key=value&key2=value2
