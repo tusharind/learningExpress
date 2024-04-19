@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 
 const app = express();
 
@@ -17,6 +17,20 @@ const mockusers = [{id: 1, username: "hari"},
 
 app.listen(PORT, ()=>{
     console.log(`running on port ${PORT}`);
+});
+
+app.delete("/api/users/:id", (request,response) => {
+    const {
+        params : {id},
+    } = request;
+    const parsedId = parseInt(id);
+    if(isNaN(parsedId)) return response.sendStatus(400);
+    const findUserIndex = mockusers.findIndex((user) => user.id === parsedId);
+    console.log("here you go");
+    
+    mockusers.splice(findUserIndex);
+    // if(findUserIndex === -1) return response.sendStatus(404);
+    return response.sendStatus(200);
 });
 
 app.get("/", (request, response) => {
@@ -43,6 +57,7 @@ app.post("/api/users", (request,response) => {
     const { body } = request;
     const  newUser = { id: mockusers[mockusers.length - 1].id + 1, ...body};
     mockusers.push(newUser);
+   
     return response.status(201).send(newUser);
 })
 
@@ -86,6 +101,8 @@ app.put("/api/users/:id",(request,response) => {
 
     return response.sendStatus(200);
 
-
 })
+
+
+
 
