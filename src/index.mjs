@@ -43,8 +43,7 @@ app.delete("/api/users/:id", resolveIndexByUserId, (request,response) => {
         findUserIndex
     } = request;
     
-    
-    
+
     mockusers.splice(findUserIndex);
     // if(findUserIndex === -1) return response.sendStatus(404);
     return response.sendStatus(200);
@@ -86,16 +85,12 @@ app.get("/api/products", (request,response) => {
     }]);
 });
 
-app.get("/api/users/:id", (request, response) => {
-    const parsedId = parseInt(request.params.id);
-    console.log(parsedId);
-    if(isNaN(parsedId)){
-        return response.status(400).send({
-            message: "Bad request"
-        });
-    }
+app.get("/api/users/:id", resolveIndexByUserId, (request, response) => {
         
-        const findUser = mockusers.find((u) => u.id === 5);
+        const {findUserIndex} = request;
+
+        
+        const findUser = mockusers[findUserIndex];
         if(!findUser) return response.sendStatus(404);
         return response.send(findUser);
     
