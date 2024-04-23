@@ -4,6 +4,11 @@ const app = express();
 
 app.use(express.json());
 
+const loggingMiddleware = (request, response, next) => {
+    console.log(` ${request.method} - ${request.url}`);
+    next();
+};
+
 const PORT = 3000;
 
 const mockusers = [{id: 1, username: "hari"},
@@ -33,7 +38,7 @@ app.delete("/api/users/:id", (request,response) => {
     return response.sendStatus(200);
 });
 
-app.get("/", (request, response) => {
+app.get("/", loggingMiddleware,(request, response) => {
     response.status(201).send({ msg: "Hello"});
 });
 
@@ -102,7 +107,4 @@ app.put("/api/users/:id",(request,response) => {
     return response.sendStatus(200);
 
 })
-
-
-
 
