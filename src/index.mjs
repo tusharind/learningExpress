@@ -4,10 +4,24 @@ const app = express();
 
 app.use(express.json());
 
-const loggingMiddleware = (request, response, next) => {
-    console.log(` ${request.method} - ${request.url}`);
-    next();
+const resolveIndexByUserId = (request, response, next) => {
+    const {
+        params : {id},
+    } = request;//destructuring
+
+    const parsedId = parseInt(id);
+    if(isNaN(parsedId)) return response.sendStatus(400);
+    const findUserIndex = mockusers.findIndex((user) => user.id === parsedId);
+
+    if(findUserIndex === -1)
+    return response.sendStatus(404);
+request.findUserIndex = findUserIndex;
+next();
 };
+
+
+
+
 
 const PORT = 3000;
 
@@ -24,21 +38,19 @@ app.listen(PORT, ()=>{
     console.log(`running on port ${PORT}`);
 });
 
-app.delete("/api/users/:id", (request,response) => {
+app.delete("/api/users/:id", resolveIndexByUserId, (request,response) => {
     const {
-        params : {id},
+        findUserIndex
     } = request;
-    const parsedId = parseInt(id);
-    if(isNaN(parsedId)) return response.sendStatus(400);
-    const findUserIndex = mockusers.findIndex((user) => user.id === parsedId);
-    console.log("here you go");
+    
+    
     
     mockusers.splice(findUserIndex);
     // if(findUserIndex === -1) return response.sendStatus(404);
     return response.sendStatus(200);
 });
 
-app.get("/", loggingMiddleware,(request, response) => {
+app.get("/",(request, response) => {
     response.status(201).send({ msg: "Hello"});
 });
 
@@ -58,7 +70,7 @@ app.get("/api/users", (request,response) => {
     return response.send(mockusers);
 });
 
-app.post("/api/users", (request,response) => {
+app.post("/api/users", resolveIndexByUserId,(request,response) => {
     const { body } = request;
     const  newUser = { id: mockusers[mockusers.length - 1].id + 1, ...body};
     mockusers.push(newUser);
@@ -89,22 +101,15 @@ app.get("/api/users/:id", (request, response) => {
     
 })
 
-app.put("/api/users/:id",(request,response) => {
-    const {
-        body,
-        params: { id },
-    } = request;
+app.put("/api/users/:id",resolveIndexByUserId,(request,response) => {
 
-    const parsedId = parseInt(id);
-    if(isNaN(parsedId)) return response.sendStatus(400);
-
-    const findUserIndex = mockusers.findIndex((user) => user.id === parsedId);
-
-    if(findUserIndex === -1) return response.sendStatus(404);
+    const { body, findUserIndex } = request;
 
     mockusers[findUserIndex] = {  ...body};
 
     return response.sendStatus(200);
 
 })
+
+
 
